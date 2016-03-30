@@ -1,0 +1,180 @@
+<h2 id="heading1">NAME</h2>
+<p class="indent">
+<b><a href="./scripts.php?script=portmon">portmon</a></b>
+- monitors the availability of a port on a remote host.
+</p>
+<h2 id="heading2">SYNOPSIS</h2>
+<p class="indent">
+
+<b><a href="./scripts.php?script=portmon">portmon</a></b>
+ [
+<b>-c </b>
+<i>&lt;config_file&gt;</i>
+] [
+<b>-d</b>
+] [
+<b>-l</b>
+]
+[
+<b>-r </b>
+<i>&lt;rcpt_email_addr&gt;</i>
+] [
+<b>-v</b>
+]  &lt;
+<i>clientid</i>
+&gt;|
+<b>-V</b>
+
+<br/>
+</p>
+<h2 id="heading3">AVAILABILITY</h2>
+<p class="indent">
+<b><a href="./scripts.php?script=portmon">portmon</a></b>
+is a Bourne shell script which should work equally well on all versions of UNIX,
+Linux and Mac OS X.
+</p>
+<h2 id="heading4">DESCRIPTION</h2>
+<p class="indent">
+<b><a href="./scripts.php?script=portmon">portmon</a></b>
+uses 
+<b>nmap</b>
+to check that a specified port is open on a remote host.
+</p>
+<p class="indent">
+<b>NB .</b>
+A short client id is normally given in preference to a host name on the 
+command line. This is used to identify the configuration stanza in 
+the configuration file which will have the required hostname or IP address.
+If no configuration file is found or if the client id is not found in the
+configuration file
+<b><a href="./scripts.php?script=portmon">portmon</a></b>
+will assume that 
+<i>clientid=hostname</i>
+.
+</p>
+<p class="indent">
+The script is designed to run silently in the background simply logging when
+a port is noticed to be down and when recovery is noted. When the script
+is terminated with SIGHUP or SIGTERM a trap ensures that the end of the
+monitoring session is also logged.
+</p>
+<h2 id="heading5">OPTIONS</h2>
+<p class="indent">
+</p>
+<p class="indent">
+<b>-c</b>&nbsp;&nbsp;&nbsp;
+Use the specified configuration file in preference to the default
+
+<i>"/usr/local/etc/<a href="./scripts.php?script=portmon.cf">portmon.cf</a>"</i>
+. If no configuration file is found the 
+script will attempt to soldier on with the information it has from the 
+command line.
+</p>
+<p class="indent">
+<b>-l</b>&nbsp;&nbsp;&nbsp;
+Use the local syslog facility to record the date and time that the
+monitoring starts and ends. If the port goes down the time and 
+date that port is first noted to be down is recorded. If the
+port becomes available again this is also logged.
+</p>
+<p class="indent">
+
+<b>-r </b>
+&lt;email_address&gt;
+
+Send alerts to the specified user address. This will be used in preference
+to the recipient specified in the configuration file and is useful when testing
+the script. If no recipient is specified either on the command line nor in
+the configuration file
+<b><a href="./scripts.php?script=portmon">portmon</a> </b>
+will send alerts to the invoking user's local mailbox. 
+</p>
+<p class="indent">
+NB. This functionality is not yet available.
+</p>
+<p class="indent">
+
+<b>-d</b>&nbsp;&nbsp;&nbsp;
+
+Start in debug mode. The 
+<b>-x</b>&nbsp;&nbsp;&nbsp;
+ option is set within the shell.
+</p>
+<p class="indent">
+<b>-v</b>&nbsp;&nbsp;&nbsp;
+Set verbose mode. Ordinarily 
+<b><a href="./scripts.php?script=portmon">portmon</a></b>
+operates silently unless show stopping problems are detected. In 
+<i>verbose</i>
+mode 
+<b><a href="./scripts.php?script=portmon">portmon</a></b>
+reports starting, stopping and port availability to screen. 
+</p>
+<p class="indent">
+
+<b>-V</b>&nbsp;&nbsp;&nbsp;
+
+Print the 
+<i><a href="./scripts.php?script=portmon">portmon</a></i>
+ version and exit.
+</p>
+<h2 id="heading6">EXAMPLES</h2>
+<p class="indent">
+
+</p><div class="cmdline">
+<pre>
+portmon -l -v merlin &
+</pre></div>
+<p class="indent">
+</p>
+<p class="indent">
+Check that the port specified in the default configuration file,
+<i>"/usr/local/<a href="./scripts.php?script=portmon.cf">portmon.cf</a>" ,</i>
+is available on the host merlin. Whenever it is noted that
+the port goes down or recovers this is also logged 
+using the local
+<b>syslog</b>
+facility.
+</p>
+<p class="indent">
+Verbose mode will be used causing
+<b>portmon</b>
+to report the port's availability to standard error.
+</p>
+<p class="indent">
+</p><div class="cmdline">
+<pre>
+portmon www.fulford.net &
+</pre></div>
+<p class="indent">
+</p>
+<p class="indent">
+The script will check the configuration file for the client id
+"www.fulford.net".
+If no entry is found, as seems likely, "www.fulford.net" will be
+assumed to be a hostname and 
+<b>nmap</b>
+will be run with the "
+<i>-Pn</i>
+" option. By default port 80 will be
+specified.
+</p>
+<h2 id="heading8">BUGS</h2>
+<p class="indent">
+The script is quite crude having very little error checking. The consequences
+of unexpected input are untested. Where multiple ports are checked if any are
+open this is reported as success. This needs dealing with urgently.
+</p>
+<h2 id="heading9">SEE ALSO</h2>
+<p class="indent">
+<a href="./scripts.php?script=chkdf&man=y"><i>chkdf</i>,</a>
+<a href="./scripts.php?script=chkftpd&man=y"><i>chkftpd</i>,</a>
+<a href="./scripts.php?script=chkfw&man=y"><i>chkfw</i>,</a>
+<a href="./scripts.php?script=clean&man=y"><i>clean</i>,</a>
+<a href="./scripts.php?script=secscan&man=y"><i>secscan</i>.</a>
+</p>
+<h2 id="heading10">AUTHOR</h2>
+<p class="indent">
+Clifford W Fulford, City Linux. Contact fulford@fulford.net or +44 (0)709 229 5385.
+</p>
+	

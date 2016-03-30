@@ -1,0 +1,71 @@
+#!/bin/bash
+# $Id: portmon,v 1.29 2014/12/30 15:29:12 fulford Exp $
+# $Source: /src/merlin/usr/local/etc/RCS/portmon,v $
+# $Revision: 1.29 $
+# $Date: 2014/12/30 15:29:12 $
+# Author C W Fulford.
+# Copyright 2013,2014 (c) C W Fulford.
+# Licensed for public use under the LGPL, .
+# For assistance contact fulford@fulford.net 0709 229 5385
+########################################################################
+cmd=`basename $0`
+ver=`echo "$Revision: 1.29 $" |awk '{print $2}'`
+date=`echo "$Date: 2014/12/30 15:29:12 $"|awk '{print $2,$3}'`
+syntax="$cmd [-c <config_file>] [-d] [-l] [-p #] ] [-v] <host_id>|-V"
+while [ $#  -gt 0 ];do
+	case $1 in
+		-c)config=$2;shift 2;;
+		-d)debug=:;set -x;shift;;
+		-l)syslog=:;shift;;
+		-p)port=$2;shift 2;;
+		-v)verbose=:;shift;;
+		-V)echo "$cmd $ver $date";exit ;;
+		*) hostid=$1;shift;;
+	esac
+done
+
+config=${config:-/usr/local/etc/portmon.cf}
+if [ -r $config ];then
+	eval `sed -ne '/^'$hostid':/,/^$/{/^[ 	]/p}' $config`
+fi
+port=${port:=110}
+[ -z "$host" ] && host=$hostid
+
+_end () {
+     logger -t $cmd "$cmd port $port on $host stopped `date`"
+     exit 1
+}
+
+trap "_end" 1 15
+
+nslookup $host >/dev/null ||{
+	echo "$cmd: can't resolve hostname $host">/dev/null
+	exit 1 
+}
+	
+[ "$verbose" ] &&{
+	echo "$cmd started monitoring $port on $host `date`"
+}
+[ "$syslog" ] &&{
+	logger -t $cmd "started monitoring $port on $host `date`"
+}
+
+while : ;do
+	if nmap -Pn -p$port qsl|grep closed>/dev/null ;then
+		msg="port $port on $host down `date`"
+		[ "$verbose" ] && echo $msg
+		[ "$syslog" ] && logger -t $cmd "$msg"
+		while nmap -Pn -p$port qsl|grep closed >/dev/null ;do
+			[ "$verbose" ]&&{
+				echo "$cmd: $port still closed"
+			}
+			sleep 180
+		done
+		msg="port $port on $host recovered `date`"
+		[ "$verbose" ] && echo $msg
+		[ "$syslog" ] && logger -t $cmd "$msg"
+
+	fi
+	[ "$verbose" ] && echo "port $port on $host up `date`"
+	sleep 300
+done
